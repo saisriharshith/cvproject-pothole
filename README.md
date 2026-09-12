@@ -99,10 +99,22 @@ The project uses the pre-configured Python virtual environment located in the pr
 cd /Users/konthamsaisriharshith/Desktop/client/Pothole-Computer-Vision-Project
 ```
 
-### 2. Launching the Web Dashboard
+### 2. Launching with Docker (Turnkey Containerized Deployment)
+You can build and run the entire project directly inside Docker with a single command:
 ```bash
-# Runs on safe port 5050 (prevents collision with macOS AirPlay on port 5000)
-python3 app.py
+# Option A: Using Docker Compose
+docker compose up --build
+
+# Option B: Using standard Docker CLI
+docker build -t pothole-cv-app .
+docker run -p 5050:5050 pothole-cv-app
+```
+Open **[`http://localhost:5050`](http://localhost:5050)** in your browser.
+
+### 3. Launching Locally without Docker
+```bash
+# Using the preconfigured virtual environment
+../.venv/bin/python app.py
 ```
 Open your web browser to: **[`http://localhost:5050`](http://localhost:5050)**
 
