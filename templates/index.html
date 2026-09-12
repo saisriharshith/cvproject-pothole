@@ -378,7 +378,7 @@
                     <span class="control-label">Algorithm:</span>
                     <div class="btn-group">
                         <button class="btn-toggle active" id="btn-yolo" onclick="setMode('yolo')">Deep Learning YOLO</button>
-                        <button class="btn-toggle" id="btn-classical" onclick="setMode('classical')">Classical CV (Unit 1)</button>
+                        <button class="btn-toggle" id="btn-classical" onclick="setMode('classical')">Classical Computer Vision</button>
                         <button class="btn-toggle" id="btn-edges" onclick="setMode('edges')">Canny Edge Map</button>
                     </div>
                 </div>
@@ -471,7 +471,7 @@
             <!-- Mathematical Pipeline Specifications -->
             <div class="telemetry-card">
                 <div class="card-header">
-                    <span>📐 Unit 1 Mathematical Pipeline</span>
+                    <span>📐 Classical Vision Pipeline</span>
                 </div>
                 <ul class="pipeline-steps">
                     <li>
@@ -556,7 +556,7 @@
                 document.getElementById('stat-total-detections').innerText = data.total_detections;
 
                 // Mode label
-                let modeText = "Classical Mid-Level Vision (Unit 1)";
+                let modeText = "Classical Computer Vision (Gaussian + Canny + Contours)";
                 if (data.mode === 'yolo') modeText = "Deep Learning YOLOv12 Object Detection";
                 if (data.mode === 'edges') modeText = "Canny Gradient Edge Map Inspection";
                 document.getElementById('stat-active-mode').innerText = modeText;

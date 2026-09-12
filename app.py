@@ -3,7 +3,7 @@
 PyResearch Pothole Detection System - Advanced Computer Vision Dashboard
 Supports:
   1. Deep Learning YOLOv12 Detection (best.pt + Supervision Annotator)
-  2. Classical Mid-Level Computer Vision Pipeline (Unit 1: Gaussian -> Canny -> Morphology -> Contours)
+  2. Classical Computer Vision Pipeline (Gaussian -> Canny -> Morphology -> Contours)
   3. Real-Time Spatial Gradient Edge Map Inspection
   4. Robust Centroid Object Tracking for Physically Accurate "Total Detected" Counts
   5. Live Telemetry: FPS, Frame Latency, Detection Counters, Road Hazard Alerts
@@ -369,7 +369,7 @@ class DetectionEngine:
         self.morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 
     def process_classical(self, frame):
-        """Unit 1 Classical CV: Grayscale -> GaussianBlur -> Canny -> Morphology -> Contours"""
+        """Classical Computer Vision: Grayscale -> GaussianBlur -> Canny -> Morphology -> Contours"""
         t0 = time.perf_counter()
         
         # 1. Grayscale Dimensionality Reduction

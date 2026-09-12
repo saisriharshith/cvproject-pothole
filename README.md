@@ -17,7 +17,7 @@
 Road surface defects and potholes represent severe structural hazards causing vehicular damage and traffic accidents worldwide. While modern deep learning architectures deliver high semantic classification accuracy, they impose steep computational demands and thermal throttling on embedded automotive processors.
 
 This project delivers a **dual-modality computer vision solution**:
-1. **Classical Mid-Level Vision Pipeline (Unit 1 Core):** A deterministic, mathematically proven pipeline built on 2D spatial convolution, Gaussian smoothing, Sobel gradient mapping, Canny hysteresis thresholding, morphological closing, and geometric contour discrimination. Running on commodity CPU hardware, it achieves **284.2 FPS** with an average latency of **3.31 ms per frame**.
+1. **Classical Computer Vision Pipeline:** A deterministic, mathematically proven pipeline built on 2D spatial convolution, Gaussian smoothing, Sobel gradient mapping, Canny hysteresis thresholding, morphological closing, and geometric contour discrimination. Running on commodity CPU hardware, it achieves **284.2 FPS** with an average latency of **3.31 ms per frame**.
 2. **Deep Learning Verification Engine (`best.pt`):** A custom-trained YOLOv12 model integrated with an interactive web dashboard for real-time comparative benchmarking against the classical pipeline.
 
 ---
@@ -119,7 +119,7 @@ Open **[`http://localhost:5050`](http://localhost:5050)** in your browser.
 Open your web browser to: **[`http://localhost:5050`](http://localhost:5050)**
 
 #### Web Dashboard Features:
-- **Algorithm Switcher:** Toggle on-the-fly between **Classical CV (Unit 1)**, **Deep Learning YOLO**, and **Canny Edge Map View**.
+- **Algorithm Switcher:** Toggle on-the-fly between **Classical Computer Vision**, **Deep Learning YOLO**, and **Canny Edge Map View**.
 - **Source Switcher:** Switch between the included **`demo.mp4`** road video and your live vehicular **Webcam (`0`)**.
 - **Live Telemetry & Metrics:** Real-time FPS counter, frame latency (ms), active detections, cumulative counter, and road hazard alert banner.
 - **Physical Dimension Telemetry:** Real-time photogrammetric width $\times$ length (cm), distance (m), area ($\text{m}^2$), and ASTM D6433 severity index.
