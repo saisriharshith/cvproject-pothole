@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Road Pothole Detection & Vision Analytics Suite</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --primary: #58a6ff;
+            --primary-glow: rgba(88, 166, 255, 0.25);
+            --success: #2ea043;
+            --warning: #d29922;
+            --danger: #f85149;
+            --text-main: #f0f6fc;
+            --text-sub: #8b949e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Navigation */
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #0055ff, #58a6ff);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .brand-text h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .brand-text p {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(46, 160, 67, 0.15);
+            color: #3fb950;
+            border: 1px solid rgba(46, 160, 67, 0.4);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #3fb950;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #3fb950;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1440px;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 2.2fr 1fr;
+            gap: 1.5rem;
+            flex: 1;
+            width: 100%;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Video Section */
+        .video-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        .video-header {
+            padding: 0.8rem 1.2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(22, 27, 34, 0.8);
+        }
+
+        .video-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .video-viewport {
+            position: relative;
+            background-color: #000;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-viewport img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .video-controls {
+            padding: 1rem 1.2rem;
+            background: rgba(22, 27, 34, 0.95);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .btn-group {
+            display: inline-flex;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-toggle {
+            background-color: #21262d;
+            color: var(--text-sub);
+            border: none;
+            padding: 7px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-toggle:not(:last-child) {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .btn-toggle:hover {
+            background-color: #30363d;
+            color: var(--text-main);
+        }
+
+        .btn-toggle.active {
+            background-color: var(--primary);
+            color: #0d1117;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* Sidebar & Telemetry */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .telemetry-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.2rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .card-header {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-box {
+            background-color: #21262d;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-box.full-width {
+            grid-column: span 2;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .stat-value.highlight {
+            color: var(--primary);
+        }
+
+        .stat-value.danger {
+            color: var(--danger);
+        }
+
+        .stat-value.success {
+            color: var(--success);
+        }
+
+        .pipeline-steps {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .pipeline-steps li {
+            padding: 8px 12px;
+            background: #21262d;
+            border-radius: 6px;
+            border-left: 3px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pipeline-steps code {
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #79c0ff;
+        }
+
+        footer {
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="brand">
+            <div class="brand-logo">CV</div>
+            <div class="brand-text">
+                <h1>Autonomous Road Pothole Detection System</h1>
+                <p>Computer Vision Coursework Project & Live Demonstration Suite</p>
+            </div>
+        </div>
+        <div class="status-badge" id="system-status-badge">
+            <div class="pulse-dot" id="pulse-dot"></div>
+            <span id="system-status-text">SURFACE CLEAR</span>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="main-container">
+
+        <!-- Video Player Card -->
+        <div class="video-card">
+            <div class="video-header">
+                <div class="video-title">
+                    <span>📡 Real-Time Detection Video Stream</span>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-sub);">
+                    Feed Source: <strong id="active-source-display" style="color: var(--primary);">demo.mp4</strong>
+                </div>
+            </div>
+
+            <!-- Viewport -->
+            <div class="video-viewport">
+                <img src="/video_feed" id="video-stream" alt="Video Stream Loading...">
+            </div>
+
+            <!-- Interactive Controls -->
+            <div class="video-controls">
+                <!-- Algorithm Mode -->
+                <div class="control-group">
+                    <span class="control-label">Algorithm:</span>
+                    <div class="btn-group">
+                        <button class="btn-toggle active" id="btn-yolo" onclick="setMode('yolo')">Deep Learning YOLO</button>
+                        <button class="btn-toggle" id="btn-classical" onclick="setMode('classical')">Classical CV (Unit 1)</button>
+                        <button class="btn-toggle" id="btn-edges" onclick="setMode('edges')">Canny Edge Map</button>
+                    </div>
+                </div>
+
+                <!-- Source Switcher -->
+                <div class="control-group">
+                    <span class="control-label">Source:</span>
+                    <div class="btn-group">
+                        <button class="btn-toggle active" id="btn-video" onclick="setSource('video')">Real Video (demo.mp4)</button>
+                        <button class="btn-toggle" id="btn-webcam" onclick="setSource('webcam')">Live Webcam (0)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- External Research Verification Links -->
+            <div style="padding: 0.6rem 1.2rem; background: #11151c; border-top: 1px solid var(--border-color); display: flex; gap: 15px; font-size: 0.78rem; align-items: center; flex-wrap: wrap;">
+                <span style="color: var(--text-sub); font-weight: 600;">GROUND TRUTH LINKS:</span>
+                <a href="https://youtu.be/R2Vr3R_Dpj0" target="_blank" style="color: #58a6ff; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                    ▶️ Real Road Feed (YouTube)
+                </a>
+                <a href="https://colab.research.google.com/github/pyresearch/notebooks/blob/main/notebook/train_yolov12_object_detection.ipynb" target="_blank" style="color: #79c0ff; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                    📓 Google Colab YOLOv12 Training Code
+                </a>
+            </div>
+        </div>
+
+        <!-- Sidebar Telemetry -->
+        <div class="sidebar">
+
+            <!-- Live Performance Metrics -->
+            <div class="telemetry-card">
+                <div class="card-header">
+                    <span>⚡ Live Performance Metrics</span>
+                    <span style="font-size: 0.75rem; color: var(--text-sub);" id="last-update">Live 500ms</span>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-label">Throughput</span>
+                        <div class="stat-value highlight" id="stat-fps">-- FPS</div>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Frame Latency</span>
+                        <div class="stat-value" id="stat-latency">-- ms</div>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">In Current Frame</span>
+                        <div class="stat-value danger" id="stat-current-detections">0</div>
+                    </div>
+                    <div class="stat-box" style="position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="stat-label">Unique Potholes</span>
+                            <button onclick="resetCounter()" style="background: none; border: 1px solid var(--border-color); color: var(--text-sub); border-radius: 4px; padding: 1px 6px; font-size: 0.7rem; cursor: pointer;" title="Reset Tracked Potholes Counter">↺ Reset</button>
+                        </div>
+                        <div class="stat-value success" id="stat-total-detections">0</div>
+                    </div>
+                    <div class="stat-box full-width">
+                        <span class="stat-label">Active Architecture</span>
+                        <div style="font-size: 0.95rem; font-weight: 600; color: #79c0ff; margin-top: 4px;" id="stat-active-mode">
+                            Classical Mid-Level Vision
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-Time Physical Dimension Telemetry -->
+            <div class="telemetry-card">
+                <div class="card-header">
+                    <span>📏 Real-Time Physical Dimensions</span>
+                    <span style="font-size: 0.72rem; color: #58a6ff; font-weight: 700; background: rgba(88,166,255,0.15); border: 1px solid rgba(88,166,255,0.3); padding: 2px 7px; border-radius: 4px;">Ground-Plane IPM</span>
+                </div>
+
+                <!-- Dynamic Active Hazards Table -->
+                <div id="pothole-dimensions-container" style="min-height: 70px;">
+                    <div style="padding: 12px; text-align: center; color: var(--text-sub); font-size: 0.82rem; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                        🟢 Road surface clear. No active hazards in FOV.
+                    </div>
+                </div>
+
+                <!-- ASTM D6433 Standard Severity Index -->
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 0.75rem;">
+                    <div style="font-weight: 700; color: var(--text-sub); margin-bottom: 6px; letter-spacing: 0.5px;">ASTM D6433 SEVERITY CLASSIFICATION:</div>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <span style="background: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid rgba(46, 160, 67, 0.3); padding: 2px 7px; border-radius: 4px; font-weight: 600;">Minor &lt; 30cm</span>
+                        <span style="background: rgba(210, 153, 34, 0.15); color: #d29922; border: 1px solid rgba(210, 153, 34, 0.3); padding: 2px 7px; border-radius: 4px; font-weight: 600;">Moderate 30-60cm</span>
+                        <span style="background: rgba(248, 81, 73, 0.15); color: #f85149; border: 1px solid rgba(248, 81, 73, 0.3); padding: 2px 7px; border-radius: 4px; font-weight: 600;">Severe &gt; 60cm</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mathematical Pipeline Specifications -->
+            <div class="telemetry-card">
+                <div class="card-header">
+                    <span>📐 Unit 1 Mathematical Pipeline</span>
+                </div>
+                <ul class="pipeline-steps">
+                    <li>
+                        <span>1. Grayscale Luma</span>
+                        <code>Y = 0.299R + 0.587G + 0.114B</code>
+                    </li>
+                    <li>
+                        <span>2. Linear Gaussian Smoothing</span>
+                        <code>5×5 Kernel, σ = 1.2</code>
+                    </li>
+                    <li>
+                        <span>3. Sobel Gradient Mapping</span>
+                        <code>Canny τ = [50, 150]</code>
+                    </li>
+                    <li>
+                        <span>4. Morphological Closing</span>
+                        <code>(A ⊕ B) ⊖ B, 5×5 Ellipse</code>
+                    </li>
+                    <li>
+                        <span>5. Ground Photogrammetry</span>
+                        <code>Z = H / tan(θ + α), W = w·(Z/f)</code>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Real-Time Road Pothole Detection Suite | Final Project Submission (September 12, 2026)</p>
+    </footer>
+
+    <!-- Interactive Client Script -->
+    <script>
+        let currentMode = "yolo";
+        let currentSource = "video";
+
+        async function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll("#btn-classical, #btn-yolo, #btn-edges").forEach(b => b.classList.remove("active"));
+            document.getElementById(`btn-${mode}`).classList.add("active");
+            
+            await fetch('/api/set_config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mode: mode })
+            });
+        }
+
+        async function setSource(source) {
+            currentSource = source;
+            document.querySelectorAll("#btn-video, #btn-webcam").forEach(b => b.classList.remove("active"));
+            document.getElementById(`btn-${source}`).classList.add("active");
+            document.getElementById("active-source-display").innerText = source === 'video' ? 'demo.mp4' : 'Webcam 0';
+
+            await fetch('/api/set_config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ source: source })
+            });
+        }
+
+        async function resetCounter() {
+            try {
+                await fetch('/api/reset_stats', { method: 'POST' });
+                document.getElementById('stat-total-detections').innerText = '0';
+            } catch (err) {
+                console.error('Reset counter failed:', err);
+            }
+        }
+
+        async function pollTelemetry() {
+            try {
+                const res = await fetch('/api/stats');
+                if (!res.ok) return;
+                const data = await res.json();
+
+                document.getElementById('stat-fps').innerText = `${data.fps} FPS`;
+                document.getElementById('stat-latency').innerText = `${data.latency_ms} ms`;
+                document.getElementById('stat-current-detections').innerText = data.detections;
+                document.getElementById('stat-total-detections').innerText = data.total_detections;
+
+                // Mode label
+                let modeText = "Classical Mid-Level Vision (Unit 1)";
+                if (data.mode === 'yolo') modeText = "Deep Learning YOLOv12 Object Detection";
+                if (data.mode === 'edges') modeText = "Canny Gradient Edge Map Inspection";
+                document.getElementById('stat-active-mode').innerText = modeText;
+
+                // Status Badge
+                const badge = document.getElementById('system-status-badge');
+                const badgeText = document.getElementById('system-status-text');
+                const dot = document.getElementById('pulse-dot');
+
+                if (data.status.includes("CRITICAL")) {
+                    badge.style.backgroundColor = "rgba(248, 81, 73, 0.2)";
+                    badge.style.color = "#f85149";
+                    badge.style.borderColor = "rgba(248, 81, 73, 0.6)";
+                    dot.style.backgroundColor = "#f85149";
+                    dot.style.boxShadow = "0 0 10px #f85149";
+                    badgeText.innerText = "CRITICAL HAZARD DETECTED!";
+                } else if (data.detections > 0) {
+                    badge.style.backgroundColor = "rgba(210, 153, 34, 0.2)";
+                    badge.style.color = "#d29922";
+                    badge.style.borderColor = "rgba(210, 153, 34, 0.5)";
+                    dot.style.backgroundColor = "#d29922";
+                    dot.style.boxShadow = "0 0 8px #d29922";
+                    badgeText.innerText = "ROAD HAZARD DETECTED!";
+                } else {
+                    badge.style.backgroundColor = "rgba(46, 160, 67, 0.15)";
+                    badge.style.color = "#3fb950";
+                    badge.style.borderColor = "rgba(46, 160, 67, 0.4)";
+                    dot.style.backgroundColor = "#3fb950";
+                    dot.style.boxShadow = "0 0 8px #3fb950";
+                    badgeText.innerText = "SURFACE CLEAR";
+                }
+
+                // Render Active Pothole Metric Dimensions Table
+                const dimContainer = document.getElementById('pothole-dimensions-container');
+                if (data.active_potholes && data.active_potholes.length > 0) {
+                    let html = `
+                    <table style="width: 100%; font-size: 0.82rem; border-collapse: collapse; margin-top: 4px;">
+                        <thead>
+                            <tr style="color: var(--text-sub); border-bottom: 1px solid var(--border-color); text-align: left;">
+                                <th style="padding: 4px 4px; font-weight: 600;">ID</th>
+                                <th style="padding: 4px 6px; font-weight: 600;">Width × Length</th>
+                                <th style="padding: 4px 6px; font-weight: 600;">Dist.</th>
+                                <th style="padding: 4px 4px; text-align: right; font-weight: 600;">Severity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                    `;
+                    data.active_potholes.forEach(p => {
+                        let color = p.hex_color || '#f85149';
+                        html += `
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td style="padding: 6px 4px; font-weight: 700; color: var(--primary);">#${p.id}</td>
+                                <td style="padding: 6px 6px; font-family: monospace; color: var(--text-main); font-weight: 600;">
+                                    ${p.width_cm} × ${p.length_cm} cm
+                                </td>
+                                <td style="padding: 6px 6px; color: var(--text-sub); font-family: monospace;">${p.distance_m}m</td>
+                                <td style="padding: 6px 4px; text-align: right;">
+                                    <span style="background: ${color}22; color: ${color}; border: 1px solid ${color}66; padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: 700;">
+                                        ${p.severity}
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    html += `</tbody></table>`;
+                    dimContainer.innerHTML = html;
+                } else {
+                    dimContainer.innerHTML = `
+                        <div style="padding: 12px; text-align: center; color: var(--text-sub); font-size: 0.82rem; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                            🟢 Road surface clear. No active hazards in FOV.
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error("Telemetry fetch error:", err);
+            }
+        }
+
+        // Poll every 500ms
+        setInterval(pollTelemetry, 500);
+        pollTelemetry();
+    </script>
+</body>
+</html>
